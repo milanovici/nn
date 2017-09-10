@@ -129,15 +129,14 @@ def batch_norm_layer(inputT, is_training=True, scope=None):
                     scope=scope, reuse = True))
 
 # Create model of MLP with batch-normalization layer
-def get_model(x, weights, biases, is_training=True, with_dropout=False, num_of_layers=1, bn=False, activation=tf.nn.relu):
+def get_model(x, weights, biases, is_training=False, with_dropout=False, num_of_layers=1, bn=False, activation=tf.nn.relu):
     # TODO: Make it more generics
-    print('activation', activation)
     with tf.name_scope('model'):
         layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
         if bn:
             layer_1 = batch_norm_layer(layer_1, is_training=is_training, scope='layer_1_bn')
         layer_1 = activation(layer_1)
-        if with_dropout:
+        if with_dropout and is_training == True:
             layer_1 = tf.nn.dropout(layer_1, keep_prob=0.25)
         last_layer = layer_1
 
@@ -146,7 +145,7 @@ def get_model(x, weights, biases, is_training=True, with_dropout=False, num_of_l
             if bn:
                 layer_2 = batch_norm_layer(layer_2, is_training=is_training, scope='layer_2_bn')
             layer_2 = activation(layer_2)
-            if with_dropout:
+            if with_dropout and is_training == True:
                 layer_2 = tf.nn.dropout(layer_2, keep_prob=0.25)
             last_layer = layer_2
             if num_of_layers > 2:
@@ -154,7 +153,7 @@ def get_model(x, weights, biases, is_training=True, with_dropout=False, num_of_l
                 if bn:
                     layer_3 = batch_norm_layer(layer_3, is_training=is_training, scope='layer_3_bn')
                 layer_3 = activation(layer_3)
-                if with_dropout:
+                if with_dropout and is_training == True:
                     layer_3 = tf.nn.dropout(layer_3, keep_prob=0.25)
                 last_layer = layer_3
         # Output layer with linear activation
